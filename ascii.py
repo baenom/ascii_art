@@ -39,12 +39,11 @@ def make_ascii_chars_from_word(word_string, is_reverse=True):
     char_scores = [(char, get_char_darkness(char)) for char in unique_chars]
     
     if is_reverse:
-        char_scores.sort(key=lambda x: x[1], reverse=True)  
+        char_scores.sort(key=lambda x: x[1], reverse=True)
     else:
-        char_scores.sort(key=lambda x: x[1], reverse=False) 
+        char_scores.sort(key=lambda x: x[1], reverse=False)
 
-    sorted_chars = [char for char, score in char_scores]
-    
+    sorted_chars = [char for char, _ in char_scores]
             
     return sorted_chars
 
