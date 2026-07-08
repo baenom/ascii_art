@@ -81,7 +81,7 @@ async def generate_ascii(
             img = raw_img.convert("RGB")
             
         is_reverse_bool = (reverse.lower() == "true")
-        
+        print(is_reverse_bool)
         dynamic_ascii_chars = make_ascii_chars_from_word(word, is_reverse=is_reverse_bool)
         
         img = resize_image(img, int(output_width))
