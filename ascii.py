@@ -47,10 +47,17 @@ def make_ascii_chars_from_word(word_string, is_reverse=True):
             
     return sorted_chars
 
-def resize_image(image, new_width=100):
+def resize_image(image, new_width=100, word_string=""):
     width, height = image.size
     aspect_ratio = height / width
-    new_height = int(new_width * aspect_ratio * 0.8)
+    
+    has_english = any(c.isalpha() and c.isascii() for c in word_string)
+    
+    if has_english:
+        new_height = int(new_width * aspect_ratio * 0.8)
+    else:
+        new_height = int(new_width * aspect_ratio * 0.5)
+        
     return image.resize((new_width, new_height), Image.Resampling.LANCZOS)
 
 def pixels_to_ascii(image, ascii_chars, is_reverse):
@@ -89,7 +96,7 @@ async def generate_ascii(
         print(is_reverse_bool)
         dynamic_ascii_chars = make_ascii_chars_from_word(word, is_reverse=is_reverse_bool)
         
-        img = resize_image(img, int(output_width))
+        img = resize_image(img, int(output_width), word_string=word)
         img = img.convert("L")
         
         ascii_str = pixels_to_ascii(img, dynamic_ascii_chars,is_reverse_bool)
