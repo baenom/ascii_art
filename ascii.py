@@ -2,8 +2,18 @@ import io
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from PIL import Image, ImageDraw, ImageFont
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Dynamic ASCII Art Generator API")
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],    
+    allow_credentials=True,
+    allow_methods=["*"],   
+    allow_headers=["*"], 
+)
 
 def get_char_darkness(char, font_size=20):
     img = Image.new("L", (font_size * 2, font_size * 2), 255)
