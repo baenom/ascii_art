@@ -30,12 +30,22 @@ def get_char_darkness(char, font_size=20):
     
     return darkness
 
-def make_ascii_chars_from_word(word_string, reverse=True):
+def make_ascii_chars_from_word(word_string, is_reverse=True):
     unique_chars = list(set(word_string))
     char_scores = [(char, get_char_darkness(char)) for char in unique_chars]
+    
+    if is_reverse:
+        char_scores.sort(key=lambda x: x[1], reverse=True) 
+    else:
+        char_scores.sort(key=lambda x: x[1], reverse=False) 
 
-    char_scores.sort(key=lambda x: x[1], reverse=reverse)
     sorted_chars = [char for char, score in char_scores]
+    
+    if " " not in sorted_chars:
+        if is_reverse:
+            sorted_chars.append(" ")
+        else:
+            sorted_chars.insert(0, " ")
             
     return sorted_chars
 
@@ -70,9 +80,9 @@ async def generate_ascii(
         image_bytes = await image.read()
         img = Image.open(io.BytesIO(image_bytes))
 
-        is_reverse = reverse.lower() == "true"
+        is_reverse_bool = (reverse.lower() == "true")
         
-        dynamic_ascii_chars = make_ascii_chars_from_word(word, reverse=is_reverse)
+        dynamic_ascii_chars = make_ascii_chars_from_word(word, reverse=is_reverse_bool)
         
         img = resize_image(img, output_width)
         img = grayscale_image(img)
