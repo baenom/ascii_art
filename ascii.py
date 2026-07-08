@@ -54,9 +54,9 @@ def resize_image(image, new_width=100, word_string=""):
     has_english = any(c.isalpha() and c.isascii() for c in word_string)
     
     if has_english:
-        new_height = int(new_width * aspect_ratio * 0.8)
-    else:
         new_height = int(new_width * aspect_ratio * 0.5)
+    else:
+        new_height = int(new_width * aspect_ratio * 0.8)
         
     return image.resize((new_width, new_height), Image.Resampling.LANCZOS)
 
