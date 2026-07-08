@@ -3,9 +3,10 @@ import os
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont 
 
 app = FastAPI()
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -15,26 +16,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+def get_char_darkness(char, font_size=20):
+    img = Image.new("L", (font_size * 2, font_size * 2), 255)
+    draw = ImageDraw.Draw(img)
+    
 
-def get_char_darkness(char):
-    darkness_map = {
-        " ": 0, ".": 5, ",": 7, "-": 10, "_": 12, "+": 25, "=": 30, 
-        "ㄱ": 35, "ㄴ": 35, "ㅇ": 45, "ㄹ": 55, "ㅎ": 65, "ㅂ": 70, 
-        "ㅁ": 75, "ㅌ": 75, "형": 95, "빽": 100, "먕": 100
-    }
-    if char in darkness_map:
-        return darkness_map[char]
-    return 20 + (ord(char) % 70)
+    font_path = "font.ttf"
+    
+    if os.path.exists(font_path):
+        font = ImageFont.truetype(font_path, font_size)
+    else:
 
+        font = ImageFont.load_default()
+
+    draw.text((font_size // 2, font_size // 2), char, fill=0, font=font)
+
+    pixels = list(img.getdata())
+    return sum(255 - p for p in pixels)
 
 def make_ascii_chars_from_word(word_string, is_reverse=True):
     unique_chars = list(set(word_string))
     char_scores = [(char, get_char_darkness(char)) for char in unique_chars]
     
     if is_reverse:
-        char_scores.sort(key=lambda x: x[1], reverse=True) 
+        char_scores.sort(key=lambda x: x[1], reverse=True)  
     else:
-        char_scores.sort(key=lambda x: x[1], reverse=False)
+        char_scores.sort(key=lambda x: x[1], reverse=False) 
 
     sorted_chars = [char for char, score in char_scores]
     
@@ -46,15 +53,13 @@ def make_ascii_chars_from_word(word_string, is_reverse=True):
             
     return sorted_chars
 
-
 def resize_image(image, new_width=100):
     width, height = image.size
     aspect_ratio = height / width
-    new_height = int(new_width * aspect_ratio * 0.5)
-    return image.resize((new_width, new_height), Image.Resampling.LANCZOS) 
+    new_height = int(new_width * aspect_ratio * 0.8)
+    return image.resize((new_width, new_height), Image.Resampling.LANCZOS)
 
 def pixels_to_ascii(image, ascii_chars):
-
     pixels = list(image.getdata())
     ascii_str = ""
     num_chars = len(ascii_chars)
@@ -80,14 +85,14 @@ async def generate_ascii(
             img = img.convert("RGB")
         else:
             img = raw_img.convert("RGB")
-
+            
         is_reverse_bool = (reverse.lower() == "true")
-
+        
         dynamic_ascii_chars = make_ascii_chars_from_word(word, is_reverse=is_reverse_bool)
-
+        
         img = resize_image(img, int(output_width))
         img = img.convert("L")
-
+        
         ascii_str = pixels_to_ascii(img, dynamic_ascii_chars)
         pixel_count = len(ascii_str)
         
@@ -102,7 +107,7 @@ async def generate_ascii(
         })
         
     except Exception as e:
-        print(f"[SERVER ERROR]에러: {str(e)}")
+        print(f"[SERVER ERROR] 에러: {str(e)}")
         return JSONResponse(status_code=500, content={"success": False, "detail": str(e)})
 
 if __name__ == "__main__":
