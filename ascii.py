@@ -67,7 +67,7 @@ def pixels_to_ascii(image, ascii_chars):
 async def generate_ascii(
     image: UploadFile = File(...),
     word: str = Form(...),
-    reverse: str = Form("true"),
+    reverse: str = Form(...),
     output_width: int = Form(40)
 ):
     try:
