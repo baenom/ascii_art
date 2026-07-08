@@ -45,11 +45,6 @@ def make_ascii_chars_from_word(word_string, is_reverse=True):
 
     sorted_chars = [char for char, score in char_scores]
     
-    if " " not in sorted_chars:
-        if is_reverse:
-            sorted_chars.append(" ")
-        else:
-            sorted_chars.insert(0, " ")
             
     return sorted_chars
 
