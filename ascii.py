@@ -53,12 +53,17 @@ def resize_image(image, new_width=100):
     new_height = int(new_width * aspect_ratio * 0.8)
     return image.resize((new_width, new_height), Image.Resampling.LANCZOS)
 
-def pixels_to_ascii(image, ascii_chars):
+def pixels_to_ascii(image, ascii_chars, is_reverse):
     pixels = list(image.getdata())
     ascii_str = ""
     num_chars = len(ascii_chars)
+    
     for pixel_value in pixels:
-        index = pixel_value * (num_chars - 1) // 255
+        if is_reverse:
+            index = pixel_value * (num_chars - 1) // 255
+        else:
+            index = (255 - pixel_value) * (num_chars - 1) // 255
+            
         ascii_str += ascii_chars[index]
     return ascii_str
 
@@ -87,7 +92,7 @@ async def generate_ascii(
         img = resize_image(img, int(output_width))
         img = img.convert("L")
         
-        ascii_str = pixels_to_ascii(img, dynamic_ascii_chars)
+        ascii_str = pixels_to_ascii(img, dynamic_ascii_chars,is_reverse_bool)
         pixel_count = len(ascii_str)
         
         ascii_image = "\n".join(
