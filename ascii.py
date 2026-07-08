@@ -63,14 +63,16 @@ def pixels_to_ascii(image, ascii_chars):
 async def generate_ascii(
     image: UploadFile = File(...),
     word: str = Form(...),
-    reverse: bool = Form(True),
+    reverse: str = Form("true"),
     output_width: int = Form(40)
 ):
     try:
         image_bytes = await image.read()
         img = Image.open(io.BytesIO(image_bytes))
+
+        is_reverse = reverse.lower() == "true"
         
-        dynamic_ascii_chars = make_ascii_chars_from_word(word, reverse=reverse)
+        dynamic_ascii_chars = make_ascii_chars_from_word(word, reverse=is_reverse)
         
         img = resize_image(img, output_width)
         img = grayscale_image(img)
